@@ -11,6 +11,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import Image from 'next/image'
 import { useAuth } from '@/app/context/AuthContext'
+import Cookies from 'js-cookie'
 
 export default function LoginForm() {
   const router = useRouter()
@@ -41,6 +42,14 @@ export default function LoginForm() {
       )
 
       if (userCredential.user) {
+        // Set auth-token cookie
+        const idToken = await userCredential.user.getIdToken()
+        Cookies.set('auth-token', idToken, { 
+          expires: 7, // Cookie expires in 7 days
+          secure: process.env.NODE_ENV === 'production',
+          sameSite: 'strict'
+        })
+        
         toast.success('Login successful!')
         
         try {
@@ -54,7 +63,7 @@ export default function LoginForm() {
               console.log('Redirecting to:', fromParam)
               hasRedirected.current = true
               setTimeout(() => {
-                router.push(fromParam)
+                router.replace(fromParam)
               }, 100)
             } else {
               // Otherwise, redirect based on user role
@@ -62,7 +71,7 @@ export default function LoginForm() {
               console.log('Redirecting to:', redirectPath)
               hasRedirected.current = true
               setTimeout(() => {
-                router.push(redirectPath)
+                router.replace(redirectPath)
               }, 100)
             }
           } else {

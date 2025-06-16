@@ -15,8 +15,13 @@ export function middleware(request: NextRequest) {
 
   // Check for auth token in cookies
   const authToken = request.cookies.get("auth-token")?.value;
+  
   if (!authToken) {
-    // Redirect to login with return path
+    // Clear any existing auth-token cookie to prevent stale tokens
+    const response = NextResponse.redirect(new URL("/login", request.url));
+    response.cookies.delete("auth-token");
+    
+    // Add the current path as the 'from' parameter
     const url = new URL("/login", request.url);
     url.searchParams.set("from", pathname);
     return NextResponse.redirect(url);

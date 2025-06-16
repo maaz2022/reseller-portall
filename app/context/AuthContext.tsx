@@ -5,6 +5,7 @@ import { User, onAuthStateChanged } from "firebase/auth";
 import { doc, getDoc } from "firebase/firestore";
 import { auth, db } from "@/lib/firebase";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
+import Cookies from 'js-cookie';
 
 interface AuthContextType {
   user: User | null;
@@ -34,6 +35,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       if (user) {
         try {
+          // Update auth-token cookie
+          const idToken = await user.getIdToken()
+          Cookies.set('auth-token', idToken, {
+            expires: 7,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'strict'
+          })
+
           // Get user role from Firestore with retry logic
           let retries = 3;
           while (retries > 0) {
@@ -69,7 +78,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   // Handle route protection
   useEffect(() => {
-    if (!loading && !hasRedirected.current) {
+    if (!loading && user && userRole && !hasRedirected.current) {
       console.log('Route protection check:', {
         hasUser: !!user,
         userRole,
@@ -90,13 +99,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           if (fromParam && isDashboardPath) {
             console.log('Redirecting to:', fromParam);
             setTimeout(() => {
-              router.push(fromParam);
+              router.replace(fromParam);
             }, 100);
           } else {
             const redirectPath = userRole === 'premium' ? '/premium-dashboard' : '/dashboard';
             console.log('Redirecting to:', redirectPath);
             setTimeout(() => {
-              router.push(redirectPath);
+              router.replace(redirectPath);
             }, 100);
           }
         } else if (isDashboardPath) {
@@ -105,13 +114,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             console.log('Redirecting to premium dashboard');
             hasRedirected.current = true;
             setTimeout(() => {
-              router.push('/premium-dashboard');
+              router.replace('/premium-dashboard');
             }, 100);
           } else if (userRole !== 'premium' && pathname !== '/dashboard') {
             console.log('Redirecting to regular dashboard');
             hasRedirected.current = true;
             setTimeout(() => {
-              router.push('/dashboard');
+              router.replace('/dashboard');
             }, 100);
           }
         }
@@ -121,7 +130,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         // Preserve the current path as the 'from' parameter
         const redirectUrl = `/login?from=${encodeURIComponent(pathname)}`;
         setTimeout(() => {
-          router.push(redirectUrl);
+          router.replace(redirectUrl);
         }, 100);
       }
     }
