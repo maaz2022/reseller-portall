@@ -283,11 +283,28 @@ export default function SignupForm() {
         .phone-input-container {
           width: 100% !important;
         }
+        .phone-input-container .form-control {
+          background-color: var(--background) !important;
+          color: var(--foreground) !important;
+          border: 1px solid var(--border) !important;
+          border-radius: 0.5rem !important;
+          box-shadow: none !important;
+        }
+        .dark .phone-input-container .form-control {
+          background-color: #23272f !important;
+          color: #f3f4f6 !important;
+          border: 1px solid #4b5563 !important;
+        }
         .phone-dropdown {
           background-color: var(--background);
           border: 1px solid var(--border);
           border-radius: 0.5rem;
           box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+        }
+        .dark .phone-dropdown {
+          background-color: #23272f !important;
+          color: #f3f4f6 !important;
+          border-color: #4b5563 !important;
         }
         .phone-search {
           background-color: var(--background);
@@ -297,22 +314,43 @@ export default function SignupForm() {
           margin: 0.5rem;
           width: calc(100% - 1rem);
         }
+        .dark .phone-search {
+          background-color: #23272f !important;
+          color: #f3f4f6 !important;
+          border-color: #4b5563 !important;
+        }
         .country-list {
           background-color: var(--background) !important;
           color: var(--foreground) !important;
         }
+        .dark .country-list {
+          background-color: #23272f !important;
+          color: #f3f4f6 !important;
+        }
         .country {
           color: var(--foreground) !important;
         }
+        .dark .country {
+          color: #f3f4f6 !important;
+        }
         .country:hover {
           background-color: var(--accent) !important;
+        }
+        .dark .country:hover {
+          background-color: #4f46e5 !important;
         }
         .selected-flag {
           border-radius: 0.375rem 0 0 0.375rem !important;
           background-color: var(--background) !important;
         }
+        .dark .selected-flag {
+          background-color: #23272f !important;
+        }
         .selected-flag:hover, .selected-flag:focus {
           background-color: var(--accent) !important;
+        }
+        .dark .selected-flag:hover, .dark .selected-flag:focus {
+          background-color: #4f46e5 !important;
         }
         .country-list .country.highlight {
           background-color: var(--accent) !important;
@@ -320,30 +358,9 @@ export default function SignupForm() {
         .country-list .country.selected {
           background-color: var(--accent) !important;
         }
-        .dark .phone-input-container .selected-flag {
-          background-color: var(--background) !important;
-        }
-        .dark .phone-input-container .selected-flag:hover {
-          background-color: var(--accent) !important;
-        }
-        .dark .phone-dropdown {
-          background-color: var(--background) !important;
-          border-color: var(--border) !important;
-        }
-        .dark .country-list {
-          background-color: var(--background) !important;
-          color: var(--foreground) !important;
-        }
-        .dark .country {
-          color: var(--foreground) !important;
-        }
-        .dark .country:hover {
-          background-color: var(--accent) !important;
-        }
-        .dark .phone-search {
-          background-color: var(--background) !important;
-          color: var(--foreground) !important;
-          border-color: var(--border) !important;
+        .dark .country-list .country.highlight,
+        .dark .country-list .country.selected {
+          background-color: #4f46e5 !important;
         }
       `}</style>
     </div>
