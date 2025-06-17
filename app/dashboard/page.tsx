@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "../context/AuthContext";
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/components/ui/card";
@@ -8,10 +8,14 @@ import { Button } from "@/components/ui/button";
 import { auth } from "@/lib/firebase";
 import { signOut } from "firebase/auth";
 import { toast } from "sonner";
+import ProductGrid from "../components/ProductGrid";
+import Navbar from "../components/Navbar";
+import CartDrawer from "../components/CartDrawer";
 
 export default function Dashboard() {
   const { user, loading, userRole } = useAuth();
   const router = useRouter();
+  const [cartOpen, setCartOpen] = useState(false);
 
   useEffect(() => {
     if (!loading) {
@@ -49,52 +53,17 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="flex justify-end mb-4">
-        <Button variant="outline" onClick={handleLogout}>
-          Logout
-        </Button>
-      </div>
-      <Card>
-        <CardHeader>
-          <CardTitle>Welcome to Your Dashboard</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            <p className="text-muted-foreground">
-              As a free reseller, you have access to our basic product catalog and can place orders.
-              Upgrade to premium for exclusive features and better margins.
-            </p>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Basic Features</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-muted-foreground">
-                    Access to basic product catalog and order placement.
-                  </p>
-                </CardContent>
-              </Card>
-              <Card>
-                <CardHeader>
-                  <CardTitle>Upgrade Benefits</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-muted-foreground">
-                    Get access to exclusive products, better margins, and priority support.
-                  </p>
-                </CardContent>
-              </Card>
-            </div>
+    <>
+      <Navbar onCartClick={() => setCartOpen(true)} />
+      <CartDrawer open={cartOpen} onClose={() => setCartOpen(false)} />
+      <div className="min-h-screen relative overflow-hidden bg-gradient-to-br from-purple-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+        <div className="container mx-auto px-4 py-8">
+          <div className="mt-10">
+            <h2 className="text-2xl font-bold mb-6 text-purple-600">Product Catalog</h2>
+            <ProductGrid />
           </div>
-        </CardContent>
-        <CardFooter>
-          <Button onClick={() => router.push("/premium-dashboard")}>
-            Upgrade to Premium
-          </Button>
-        </CardFooter>
-      </Card>
-    </div>
+        </div>
+      </div>
+    </>
   );
 }
