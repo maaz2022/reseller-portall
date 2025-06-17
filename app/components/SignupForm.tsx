@@ -10,21 +10,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import PhoneInput from "react-phone-input-2";
+import PhoneInput from "react-phone-input-2"; 
 import "react-phone-input-2/lib/style.css";
 import Image from "next/image";
+import Link from "next/link";
 
-// Country codes with flags
-const countryCodes = [
-  { code: "+44", flag: "🇬🇧", name: "United Kingdom" },  
-  { code: "+1", flag: "🇺🇸", name: "United States" },
-  { code: "+91", flag: "🇮🇳", name: "India" },
-  { code: "+61", flag: "🇦🇺", name: "Australia" },
-  { code: "+49", flag: "🇩🇪", name: "Germany" },
-  { code: "+33", flag: "🇫🇷", name: "France" },
-  { code: "+86", flag: "🇨🇳", name: "China" },
-  { code: "+81", flag: "🇯🇵", name: "Japan" },
-];
+
 
 export default function SignupForm() {
   const router = useRouter();
@@ -102,9 +93,20 @@ export default function SignupForm() {
       });
 
       localStorage.removeItem('selectedPlan');
-      toast.success("Account created successfully! Please log in.");
-      await auth.signOut();
-      router.replace('/login');
+      
+      if (selectedPlan === 'premium') {
+        // Store user data in localStorage for payment page
+        localStorage.setItem('pendingPremiumUser', JSON.stringify({
+          email: formData.email,
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+        }));
+        router.replace('/payment');
+      } else {
+        toast.success("Account created successfully! Please log in.");
+        await auth.signOut();
+        router.replace('/login');
+      }
     } catch (error: any) {
       console.error("Signup error:", error);
       toast.error(error.message || "Failed to create account");
@@ -124,7 +126,7 @@ export default function SignupForm() {
 
       <div className="relative max-w-md mx-auto py-12 px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-8">
-          <div className="flex justify-center mb-4">
+          <Link href="/" className="flex justify-center mb-4">
             <Image
               src="/logo.jpeg"
               alt="Logo"
@@ -132,7 +134,7 @@ export default function SignupForm() {
               height={150}
               className="rounded-full shadow-lg transform hover:scale-105 transition-transform duration-300"
             />
-          </div>
+          </Link>
           <h2 className="text-4xl font-bold text-purple-600 mb-2 animate-fade-in">Create Account</h2>
           <p className="text-muted-foreground text-lg animate-fade-in animation-delay-200">Join our community today</p>
         </div>
@@ -205,20 +207,19 @@ export default function SignupForm() {
 
             <div className="space-y-2">
               <Label htmlFor="phoneNumber" className="text-sm font-medium text-purple-600">Phone Number</Label>
-              <PhoneInput
+              <PhoneInput 
                 country={'gb'}
                 value={formData.phoneNumber}
                 onChange={handlePhoneChange}
-                inputClass="h-10 w-full rounded-md border border-input bg-white dark:bg-gray-700 px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                buttonClass="border-input bg-white dark:bg-gray-700"
+                inputClass="h-10 w-full rounded-md border border-input bg-background dark:bg-gray-800 px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                buttonClass="border-input bg-background dark:bg-gray-800"
                 containerClass="phone-input-container"
                 dropdownClass="phone-dropdown"
                 searchClass="phone-search"
-                preferredCountries={['gb', 'us', 'in', 'au', 'de', 'fr', 'cn', 'jp']}
                 enableSearch={true}
                 searchPlaceholder="Search country..."
                 inputProps={{
-                  name: 'phoneNumber',
+                  name: 'phoneNumber', 
                   required: true,
                   placeholder: 'Enter your phone number'
                 }}
@@ -300,20 +301,49 @@ export default function SignupForm() {
           background-color: var(--background) !important;
           color: var(--foreground) !important;
         }
+        .country {
+          color: var(--foreground) !important;
+        }
         .country:hover {
           background-color: var(--accent) !important;
         }
         .selected-flag {
           border-radius: 0.375rem 0 0 0.375rem !important;
+          background-color: var(--background) !important;
         }
         .selected-flag:hover, .selected-flag:focus {
           background-color: var(--accent) !important;
         }
         .country-list .country.highlight {
-          background-color: #f3e8ff !important;
+          background-color: var(--accent) !important;
         }
         .country-list .country.selected {
-          background-color: #e9d5ff !important;
+          background-color: var(--accent) !important;
+        }
+        .dark .phone-input-container .selected-flag {
+          background-color: var(--background) !important;
+        }
+        .dark .phone-input-container .selected-flag:hover {
+          background-color: var(--accent) !important;
+        }
+        .dark .phone-dropdown {
+          background-color: var(--background) !important;
+          border-color: var(--border) !important;
+        }
+        .dark .country-list {
+          background-color: var(--background) !important;
+          color: var(--foreground) !important;
+        }
+        .dark .country {
+          color: var(--foreground) !important;
+        }
+        .dark .country:hover {
+          background-color: var(--accent) !important;
+        }
+        .dark .phone-search {
+          background-color: var(--background) !important;
+          color: var(--foreground) !important;
+          border-color: var(--border) !important;
         }
       `}</style>
     </div>

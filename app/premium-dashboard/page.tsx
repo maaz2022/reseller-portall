@@ -1,29 +1,74 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "../context/AuthContext";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { auth } from "@/lib/firebase";
+import { auth, db } from "@/lib/firebase";
 import { signOut } from "firebase/auth";
+import { doc, getDoc } from "firebase/firestore";
 import { toast } from "sonner";
 
 export default function PremiumDashboard() {
   const { user, loading, userRole } = useAuth();
   const router = useRouter();
+  const [verifying, setVerifying] = useState(true);
 
   useEffect(() => {
-    if (!loading) {
-      if (!user) {
-        console.log('No user found, redirecting to login');
-        router.replace('/login');
-      } else if (userRole !== 'premium') {
-        console.log('User is not premium, redirecting to regular dashboard');
-        router.replace('/dashboard');
+    const verifyPremiumAccess = async () => {
+      if (!loading && user) {
+        try {
+          const userDoc = await getDoc(doc(db, "users", user.uid));
+          const userData = userDoc.data();
+
+          // If user is not premium, redirect to home
+          if (!userData || userData.role !== 'premium') {
+            console.log("User is not premium, redirecting to home");
+            router.replace("/");
+            return;
+          }
+
+          // If payment status is not completed, redirect to payment
+          if (!userData.paymentStatus || userData.paymentStatus !== 'completed') {
+            console.log("Payment not completed, redirecting to payment");
+            router.replace("/payment");
+            return;
+          }
+
+          // Only verify payment intent if we have one
+          if (userData.paymentIntentId) {
+            const response = await fetch("/api/verify-payment-status", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                paymentIntentId: userData.paymentIntentId,
+              }),
+            });
+
+            const verificationData = await response.json();
+
+            if (!verificationData.verified) {
+              console.log("Payment verification failed:", verificationData.error);
+              toast.error("Premium access verification failed. Please contact support.");
+              router.replace("/");
+              return;
+            }
+          }
+
+          setVerifying(false);
+        } catch (error) {
+          console.error("Error verifying premium access:", error);
+          toast.error("Error verifying premium access");
+          router.replace("/");
+        }
       }
-    }
-  }, [user, loading, userRole, router]);
+    };
+
+    verifyPremiumAccess();
+  }, [user, loading, router]);
 
   const handleLogout = async () => {
     try {
@@ -36,16 +81,19 @@ export default function PremiumDashboard() {
     }
   };
 
-  if (loading) {
+  if (loading || verifying) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="text-lg">Loading...</div>
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto mb-4"></div>
+          <div className="text-lg">Verifying premium access...</div>
+        </div>
       </div>
     );
   }
 
   if (!user || userRole !== 'premium') {
-    return null; // Don't render anything while redirecting
+    return null;
   }
 
   return (

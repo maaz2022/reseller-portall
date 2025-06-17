@@ -12,6 +12,8 @@ import { Label } from '@/components/ui/label'
 import Image from 'next/image'
 import { useAuth } from '@/app/context/AuthContext'
 import Cookies from 'js-cookie'
+import Link from 'next/link';
+
 
 export default function LoginForm() {
   const router = useRouter()
@@ -121,7 +123,7 @@ export default function LoginForm() {
 
       <div className="relative max-w-md mx-auto py-12 px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-8">
-          <div className="flex justify-center mb-4">
+          <Link  href="/" className="flex justify-center mb-4">
             <Image
               src="/logo.jpeg"
               alt="Logo"
@@ -129,7 +131,7 @@ export default function LoginForm() {
               height={150}
               className="rounded-full shadow-lg transform hover:scale-105 transition-transform duration-300"
             />
-          </div>
+          </Link>
           <h2 className="text-4xl font-bold text-purple-600 mb-2 animate-fade-in">Welcome Back</h2>
           <p className="text-muted-foreground text-lg animate-fade-in animation-delay-200">Sign in to your account</p>
         </div>
