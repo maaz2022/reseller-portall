@@ -7,58 +7,56 @@ import Image from "next/image";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { signOut } from "firebase/auth";
-import { auth } from "@/lib/firebase";
-
-const COLORS = [
-  { name: "Purple", value: "#7c3aed" },
-  { name: "Blue", value: "#2563eb" },
-  { name: "Green", value: "#16a34a" },
-  { name: "Pink", value: "#db2777" },
-];
+import { auth, db } from "@/lib/firebase";
+import { doc, getDoc } from "firebase/firestore";
+import Link from "next/link";
 
 export default function Navbar({ onCartClick }: { onCartClick: () => void }) {
   const { theme, setTheme } = useTheme();
   const { cart } = useCart();
   const { user } = useAuth();
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [userName, setUserName] = useState<string>('');
   const router = useRouter();
-  const [selectedColor, setSelectedColor] = useState(COLORS[0].value);
 
-  // Update CSS variable for accent color
   useEffect(() => {
-    document.documentElement.style.setProperty('--accent', selectedColor);
-  }, [selectedColor]);
+    const fetchUserName = async () => {
+      if (user) {
+        try {
+          const userDoc = await getDoc(doc(db, "users", user.uid));
+          const userData = userDoc.data();
+          if (userData) {
+            setUserName(`${userData.firstName} ${userData.lastName}`);
+          }
+        } catch (error) {
+          console.error("Error fetching user data:", error);
+        }
+      }
+    };
+
+    fetchUserName();
+  }, [user]);
 
   const handleLogout = async () => {
     await signOut(auth);
     router.replace("/login");
   };
 
-  const initials = user?.displayName
-    ? user.displayName.split(" ").map((n: string) => n[0]).join("")
+  const initials = userName
+    ? userName.split(" ").map((n: string) => n[0]).join("")
     : user?.email?.[0]?.toUpperCase() || "U";
 
   return (
     <nav className="sticky top-0 z-30 w-full bg-white/80 dark:bg-gray-900/80 border-b border-purple-200 dark:border-purple-800 shadow-lg backdrop-blur-xl rounded-b-2xl">
       <div className="container mx-auto flex items-center justify-between py-3 px-4">
-        <div className="flex items-center gap-3">
-          <Image src="/logo.jpeg" alt="Logo" width={40} height={40} className="rounded-full" />
+        <Link href="/dashboard" className="flex items-center gap-3">
+          <Image src="/logo2.jpeg" alt="Logo" width={30} height={30}/>
           <span className="text-xl font-bold text-purple-700 dark:text-purple-300">Reseller Portal</span>
-        </div>
+        </Link>
         <div className="flex items-center gap-6">
-          <div className="flex items-center gap-2 mr-2">
-            {COLORS.map((color) => (
-              <button
-                key={color.value}
-                className={`w-6 h-6 rounded-full border-2 ${selectedColor === color.value ? 'border-black dark:border-white ring-2 ring-accent' : 'border-gray-300'} transition-all`}
-                style={{ backgroundColor: color.value }}
-                aria-label={`Switch to ${color.name}`}
-                onClick={() => setSelectedColor(color.value)}
-              />
-            ))}
-          </div>
+     
           <span className="hidden md:inline text-gray-700 dark:text-gray-200 font-medium">
-            {user ? `Welcome, ${user.displayName || user.email}` : "Welcome!"}
+            {user ? `Welcome, ${userName || 'Loading...'}` : "Welcome!"}
           </span>
           <button
             onClick={() => setTheme(theme === "dark" ? "light" : "dark")}

@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ModeToggle } from "./components/mode-toggle";
 import { Benefits } from "./components/Benefits";
-import { ArrowRight, Shield, Zap, Users, BarChart, Mail, Phone, MapPin, Facebook, Twitter, Instagram, Linkedin, Loader2 } from "lucide-react";
+import { ArrowRight, Shield, Zap, Users, BarChart, Mail, Phone, MapPin, Facebook, Twitter, Instagram, Linkedin, Loader2, Calendar } from "lucide-react";
 
 export default function LandingPage() {
   const router = useRouter();
@@ -135,17 +135,17 @@ export default function LandingPage() {
               {
                 title: "Premium Services",
                 description: "Access exclusive premium services and features",
-                icon: "✨"
+                icon: <Shield className="h-8 w-8 text-purple-600 dark:text-purple-400" />
               },
               {
                 title: "Easy Management",
                 description: "Manage your reselling business with ease",
-                icon: "📊"
+                icon: <BarChart className="h-8 w-8 text-purple-600 dark:text-purple-400" />
               },
               {
                 title: "24/7 Support",
                 description: "Get help whenever you need it",
-                icon: "🛟"
+                icon: <Calendar className="h-8 w-8 text-purple-600 dark:text-purple-400" />
               }
             ].map((feature, index) => (
               <Card
